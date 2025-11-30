@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../viewmodels/home_viewmodel.dart';
+import '../models/countdown_model.dart';
+import '../services/history_storage.dart';
 import 'result_screen.dart';
+import 'history_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
@@ -51,6 +54,17 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text("Обратный отсчёт"),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const HistoryScreen()),
+              );
+            },
+          )
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -97,7 +111,15 @@ class _HomeScreenState extends State<HomeScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: (vm.startDate != null && vm.endDate != null)
-                    ? () {
+                    ? () async {
+                  // Сохранение в историю
+                  await HistoryStorage().addItem(
+                    CountdownModel(
+                      startDate: vm.startDate!,
+                      endDate: vm.endDate!,
+                    ),
+                  );
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(
