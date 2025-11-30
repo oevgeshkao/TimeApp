@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/history_storage.dart';
-import '../models/countdown_model.dart';
+import '../viewmodels/history_viewmodel.dart';
 import 'result_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -11,18 +10,13 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  final storage = HistoryStorage();
-  List<CountdownModel> items = [];
+  final vm = HistoryViewModel();
 
   @override
   void initState() {
     super.initState();
-    loadHistory();
-  }
-
-  Future<void> loadHistory() async {
-    items = await storage.loadHistory();
-    setState(() {});
+    vm.loadHistory();
+    vm.addListener(() => setState(() {}));
   }
 
   @override
@@ -33,19 +27,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_forever),
-            onPressed: () async {
-              await storage.clear();
-              await loadHistory();
-            },
+            onPressed: vm.clear,
           )
         ],
       ),
-      body: items.isEmpty
+      body: vm.items.isEmpty
           ? const Center(child: Text("История пуста"))
           : ListView.builder(
-        itemCount: items.length,
+        itemCount: vm.items.length,
         itemBuilder: (context, index) {
-          final item = items[index];
+          final item = vm.items[index];
 
           return ListTile(
             title: Text(
@@ -54,10 +45,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
             trailing: IconButton(
               icon: const Icon(Icons.close),
-              onPressed: () async {
-                await storage.deleteItem(index);
-                await loadHistory();
-              },
+              onPressed: () => vm.deleteItem(index),
             ),
             onTap: () {
               Navigator.push(

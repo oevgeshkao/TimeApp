@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../viewmodels/result_viewmodel.dart';
 import '../services/holiday_service.dart';
+import '../models/holiday_model.dart';
 
 class ResultScreen extends StatefulWidget {
   final DateTime start;
@@ -16,6 +18,7 @@ class ResultScreen extends StatefulWidget {
 }
 
 class _ResultScreenState extends State<ResultScreen> {
+  final vm = ResultViewModel();
   final service = HolidayService();
   List<Holiday> holidays = [];
   bool loading = true;
@@ -23,6 +26,7 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   void initState() {
     super.initState();
+    vm.calculate(widget.start, widget.end);
     load();
   }
 
@@ -38,17 +42,11 @@ class _ResultScreenState extends State<ResultScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final totalDays = widget.end.difference(widget.start).inDays;
-    final passedDays = DateTime.now().difference(widget.start).inDays;
-    final leftDays = widget.end.difference(DateTime.now()).inDays;
-    final progress = (passedDays / totalDays).clamp(0.0, 1.0);
-
     return Scaffold(
       appBar: AppBar(title: const Text("Результат")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Text(
               "До события осталось:",
@@ -58,27 +56,23 @@ class _ResultScreenState extends State<ResultScreen> {
             const SizedBox(height: 20),
 
             Text(
-              "$leftDays дней",
-              style: const TextStyle(
-                fontSize: 40,
-                fontWeight: FontWeight.bold,
-              ),
+              "${vm.leftDays} дней",
+              style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 30),
 
             LinearProgressIndicator(
-              value: progress,
+              value: vm.progress,
               minHeight: 12,
             ),
 
             const SizedBox(height: 20),
 
-            Text("Прошло: $passedDays дней"),
-            Text("Всего: $totalDays дней"),
+            Text("Прошло: ${vm.passedDays} дней"),
+            Text("Всего: ${vm.totalDays} дней"),
 
             const SizedBox(height: 30),
-
             const Divider(),
 
             const Text(
@@ -92,9 +86,7 @@ class _ResultScreenState extends State<ResultScreen> {
               child: loading
                   ? const Center(child: CircularProgressIndicator())
                   : holidays.isEmpty
-                  ? const Center(
-                child: Text("Праздников в диапазоне нет"),
-              )
+                  ? const Center(child: Text("Праздников в диапазоне нет"))
                   : ListView.builder(
                 itemCount: holidays.length,
                 itemBuilder: (context, index) {

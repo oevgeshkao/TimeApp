@@ -6,7 +6,7 @@ import 'result_screen.dart';
 import 'history_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({super.key});
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -112,7 +112,6 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ElevatedButton(
                 onPressed: (vm.startDate != null && vm.endDate != null)
                     ? () async {
-                  // Сохранение в историю
                   await HistoryStorage().addItem(
                     CountdownModel(
                       startDate: vm.startDate!,
